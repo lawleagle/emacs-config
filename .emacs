@@ -1,9 +1,12 @@
-;; add-keybind does not exist in the default version of emacs, and this config should not throw errors because of it, so add-keybind is replaced with a stub that does nothing on versions of emacs that don't have it
+;; add-keybind does not exist in the default version of emacs, and this config should not
+;; break the normal version of emacs, so add-keybind needs to be replaced with a stub
+;; if it does not exist
 (if (not (fboundp 'add-keybind))
     (defun add-keybind (map keys function)
       'nil)
   'nil
   )
+
 
 ;; somehow, these still got through even with no define-key...
 (add-keybind global-map (kbd "C-f") 'nil)
@@ -59,10 +62,69 @@
 
 (add-keybind global-map (kbd "<mouse-4>") 'mwheel-scroll)
 (add-keybind global-map (kbd "<mouse-5>") 'mwheel-scroll)
-;;(add-keybind global-map (kbd "<vertical-scroll-bar> <mouse-1>") 'i)
+(add-keybind global-map (kbd "C-f") 'isearch-forward)
+
+(add-keybind global-map (kbd "<tab>") 'indent-for-tab-command)
+
+
+
+(defun backspace-whitespace ()
+  (interactive)
+  (setq deleted-something nil)
+  (while (string-match " " (string (preceding-char)))
+    (backward-delete-char 1)
+    (setq deleted-something t))
+  (if (string-match "\n" (string (preceding-char)))
+      (setq deleted-something t))
+  (if (string-match "\n" (string (preceding-char)))
+      (backward-delete-char 1))
+  (if (not deleted-something)
+      (backward-delete-char 1)))
+(add-keybind global-map [backspace] 'backspace-whitespace)
+
+
+;; Bright-red TODOs.
+(setq fixme-modes '(c++-mode c-mode emacs-lisp-mode python-mode))
+(make-face 'font-lock-fixme-face)
+(make-face 'font-lock-note-face)
+(mapc (lambda (mode)
+        (font-lock-add-keywords
+         mode
+         '(("\\<\\(TODO\\)" 1 'font-lock-fixme-face t)
+           ("\\<\\(NOTE\\)" 1 'font-lock-note-face t))))
+      fixme-modes)
+(modify-face 'font-lock-fixme-face "Red" nil nil t nil t nil nil)
+(modify-face 'font-lock-note-face "Dark Green" nil nil t nil t nil nil)
+
+
+
+(defun find-corresponding-file ()
+  "Find the file that corresponds to this one."
+  (interactive)
+  (setq CorrespondingFileName nil)
+  (setq BaseFileName (file-name-sans-extension buffer-file-name))
+  (if (string-match "\\.c" buffer-file-name)
+      (setq CorrespondingFileName (concat BaseFileName ".h")))
+  (if (string-match "\\.h" buffer-file-name)
+      (if (file-exists-p (concat BaseFileName ".c")) (setq CorrespondingFileName (concat BaseFileName ".c"))
+	(setq CorrespondingFileName (concat BaseFileName ".cpp"))))
+  (if (string-match "\\.cpp" buffer-file-name)
+      (setq CorrespondingFileName (concat BaseFileName ".h")))
+  (if CorrespondingFileName (find-file CorrespondingFileName)
+    (error "Unable to find a corresponding file")))
+
+(add-keybind global-map (kbd "<f12>") 'find-corresponding-file)
+
+
 
 (setq inhibit-startup-screen t)
 (setq make-backup-files nil)
+(setq vc-handled-backends nil)
+
+
+(set-frame-parameter nil 'fullscreen 'fullboth)
+(scroll-bar-mode -1)
+(tool-bar-mode 0)
 
 (package-initialize)
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
@@ -101,8 +163,8 @@ There are two things you can do about this warning:
 (add-keybind evil-normal-state-map (kbd "=") 'dead)
 
 (add-keybind evil-normal-state-map (kbd "q") 'dead)
-(add-keybind evil-normal-state-map (kbd "w") 'dead)
-(add-keybind evil-normal-state-map (kbd "e") 'dead)
+(add-keybind evil-normal-state-map (kbd "w") 'left-char)
+(add-keybind evil-normal-state-map (kbd "e") 'backward-paragraph)
 (add-keybind evil-normal-state-map (kbd "r") 'dead)
 (add-keybind evil-normal-state-map (kbd "t") 'dead)
 (add-keybind evil-normal-state-map (kbd "y") 'dead)
@@ -115,13 +177,13 @@ There are two things you can do about this warning:
 
 (add-keybind evil-normal-state-map (kbd "a") 'dead)
 (add-keybind evil-normal-state-map (kbd "s") 'dead)
-(add-keybind evil-normal-state-map (kbd "d") 'dead)
-(add-keybind evil-normal-state-map (kbd "f") 'dead)
+(add-keybind evil-normal-state-map (kbd "d") 'forward-paragraph)
+(add-keybind evil-normal-state-map (kbd "f") 'right-char)
 (add-keybind evil-normal-state-map (kbd "g") 'dead)
 (add-keybind evil-normal-state-map (kbd "h") 'dead)
 (add-keybind evil-normal-state-map (kbd "j") 'dead)
 (add-keybind evil-normal-state-map (kbd "k") 'previous-line)
-(add-keybind evil-normal-state-map (kbd "l") 'right-char)
+(add-keybind evil-normal-state-map (kbd "l") 'right-word)
 (add-keybind evil-normal-state-map (kbd ";") 'dead)
 (add-keybind evil-normal-state-map (kbd "'") 'dead)
 (add-keybind evil-normal-state-map (kbd "\\") 'dead)
@@ -132,7 +194,7 @@ There are two things you can do about this warning:
 (add-keybind evil-normal-state-map (kbd "v") 'dead)
 (add-keybind evil-normal-state-map (kbd "b") 'dead)
 (add-keybind evil-normal-state-map (kbd "n") 'dead)
-(add-keybind evil-normal-state-map (kbd "m") 'left-char)
+(add-keybind evil-normal-state-map (kbd "m") 'left-word)
 (add-keybind evil-normal-state-map (kbd ",") 'next-line)
 (add-keybind evil-normal-state-map (kbd ".") 'dead)
 (add-keybind evil-normal-state-map (kbd "/") 'dead)
@@ -176,6 +238,7 @@ There are two things you can do about this warning:
 (add-keybind evil-normal-state-map (kbd "G") 'dead)
 (add-keybind evil-normal-state-map (kbd "H") 'dead)
 (add-keybind evil-normal-state-map (kbd "J") 'dead)
+
 (add-keybind evil-normal-state-map (kbd "K") 'dead)
 (add-keybind evil-normal-state-map (kbd "L") 'dead)
 (add-keybind evil-normal-state-map (kbd ":") 'dead)
@@ -194,7 +257,12 @@ There are two things you can do about this warning:
 (add-keybind evil-normal-state-map (kbd "?") 'dead)
 
 
+(add-keybind evil-normal-state-map "/" 'evil-search-forward)
+(add-keybind evil-normal-state-map "n" 'evil-search-next)
 
+(add-keybind isearch-mode-map "\C-f" 'isearch-yank-word-or-char)
+(add-keybind isearch-mode-map (kbd "<return>") 'isearch-repeat-forward)
+(add-keybind isearch-mode-map (kbd "<S-return>") 'isearch-repeat-backward)
 
 (custom-set-variables
  '(evil-move-beyond-eol t)
