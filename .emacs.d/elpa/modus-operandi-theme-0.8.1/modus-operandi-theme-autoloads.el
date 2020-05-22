@@ -1,0 +1,20 @@
+;;; modus-operandi-theme-autoloads.el --- automatically extracted autoloads
+;;
+;;; Code:
+
+(add-to-list 'load-path (directory-file-name
+                         (or (file-name-directory #$) (car load-path))))
+
+
+;;;### (autoloads nil nil ("modus-operandi-theme-pkg.el" "modus-operandi-theme.el")
+;;;;;;  (0 0 0 0))
+
+;;;***
+
+;; Local Variables:
+;; version-control: never
+;; no-byte-compile: t
+;; no-update-autoloads: t
+;; coding: utf-8
+;; End:
+;;; modus-operandi-theme-autoloads.el ends here

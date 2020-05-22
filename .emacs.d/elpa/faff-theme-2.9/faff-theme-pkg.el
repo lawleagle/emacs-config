@@ -1,0 +1,2 @@
+;;; -*- no-byte-compile: t -*-
+(define-package "faff-theme" "2.9" "Light Emacs color theme on cornsilk3 background" 'nil :commit "0aaa15181eab4088a57ad69ba2c93b2663453c31" :keywords '("color" "theme") :authors '(("James Ferguson <(concat \"wjcferguson\" at-sign \"gmail.com\")>")) :maintainer '("James Ferguson <(concat \"wjcferguson\" at-sign \"gmail.com\")>") :url "https://github.com/WJCFerguson/emacs-faff-theme")
